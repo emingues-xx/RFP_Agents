@@ -1,0 +1,287 @@
+services:
+  # Aplicação Principal
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rfp-agents-app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/rfp_agents
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_password}@redis:6379/0
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
+      - MILVUS_HOST=milvus
+      - MILVUS_PORT=19530
+      - MILVUS_USERNAME=${MILVUS_USERNAME:-root}
+      - MILVUS_PASSWORD=${MILVUS_PASSWORD:-Milvus}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
+      - LANGFUSE_URL=http://langfuse:3000
+      - LANGFUSE_PUBLIC_URL=http://localhost:3020
+      - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY}
+      - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - PROMETHEUS_PORT=9090
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/alembic:/app/alembic
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      milvus:
+        condition: service_started
+      etcd:
+        condition: service_started
+      minio:
+        condition: service_started
+    networks:
+      - rfp-network
+    restart: unless-stopped
+
+  # PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: rfp-agents-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=rfp_agents
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+      - ./scripts/create_memory_tables.sql:/docker-entrypoint-initdb.d/create_memory_tables.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rfp-network
+    restart: unless-stopped
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: rfp-agents-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redis_password} --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD:-redis_password}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rfp-network
+
+  # Milvus Dependencies - etcd
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.5
+    container_name: rfp-agents-etcd
+    restart: unless-stopped
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    command: >
+      etcd
+      --name milvus-etcd
+      --data-dir /etcd
+      --listen-peer-urls http://0.0.0.0:2380
+      --listen-client-urls http://0.0.0.0:2379
+      --advertise-client-urls http://etcd:2379
+      --initial-advertise-peer-urls http://etcd:2380
+      --initial-cluster milvus-etcd=http://etcd:2380
+      --initial-cluster-state new
+    volumes:
+      - etcd_data:/etcd
+    networks:
+      - rfp-network
+
+  # Milvus Dependencies - MinIO
+  minio:
+    image: minio/minio:RELEASE.2023-07-21T21-12-44Z
+    container_name: rfp-agents-minio
+    restart: unless-stopped
+    environment:
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - rfp-network
+
+  # Milvus (Vector Database)
+  milvus:
+    image: milvusdb/milvus:v2.3.3
+    container_name: rfp-agents-milvus
+    restart: unless-stopped
+    command: ["milvus", "run", "standalone"]
+    environment:
+      - ETCD_ENDPOINTS=etcd:2379
+      - MINIO_ADDRESS=minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
+      - MILVUS_USERNAME=${MILVUS_USERNAME:-root}
+      - MILVUS_PASSWORD=${MILVUS_PASSWORD:-Milvus}
+      - MILVUS_ENABLE_RBAC=true
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    volumes:
+      - milvus_data:/var/lib/milvus
+    depends_on:
+      - etcd
+      - minio
+    networks:
+      - rfp-network
+
+  # ClickHouse (requerido pelo Langfuse v3+)
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: rfp-agents-clickhouse
+    ports:
+      - "8123:8123"
+      - "9002:9000"
+    environment:
+      - CLICKHOUSE_DB=langfuse
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=clickhouse_password
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    networks:
+      - rfp-network
+    restart: unless-stopped
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  # Langfuse
+  langfuse:
+    image: langfuse/langfuse:3
+    container_name: rfp-agents-langfuse
+    ports:
+      - "3020:3000"
+    environment:
+      # Database
+      - DATABASE_URL=postgresql://postgres:postgres@langfuse-db:5432/langfuse
+      
+      # ClickHouse
+      - CLICKHOUSE_URL=http://clickhouse:8123
+      - CLICKHOUSE_MIGRATION_URL=clickhouse://clickhouse:9000
+      - CLICKHOUSE_DB=langfuse
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=clickhouse_password
+      - CLICKHOUSE_CLUSTER_ENABLED=false
+      
+      # Redis (reaproveitando o redis já definido no compose)
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_AUTH=${REDIS_PASSWORD:-redis_password}
+      
+      # Auth
+      - NEXTAUTH_URL=http://localhost:3020
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-some-long-random-string-change-me-in-production}
+      - SALT=${SALT:-some-long-random-string-change-me-in-production}
+      
+      # ENCRYPTION_KEY OBRIGATÓRIO (64 chars hex)
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
+      
+      # S3 / MinIO - usando o MinIO que já existe
+      - LANGFUSE_S3_EVENT_UPLOAD_BUCKET=langfuse
+      - LANGFUSE_S3_EVENT_UPLOAD_REGION=us-east-1
+      - LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID=${MINIO_ACCESS_KEY:-minioadmin}
+      - LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY=${MINIO_SECRET_KEY:-minioadmin}
+      - LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT=http://minio:9000
+      - LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE=true
+      - LANGFUSE_S3_EVENT_UPLOAD_PREFIX=events/
+      
+      - HOSTNAME=0.0.0.0
+    depends_on:
+      - langfuse-db
+      - clickhouse
+      - redis
+      - minio
+    networks:
+      - rfp-network
+    restart: unless-stopped
+
+  langfuse-db:
+    image: postgres:15-alpine
+    container_name: rfp-agents-langfuse-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=langfuse
+    volumes:
+      - langfuse_db_data:/var/lib/postgresql/data
+    networks:
+      - rfp-network
+    restart: unless-stopped
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: rfp-agents-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - rfp-network
+    restart: unless-stopped
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: rfp-agents-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+    networks:
+      - rfp-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  milvus_data:
+  etcd_data:
+  minio_data:
+  langfuse_db_data:
+  clickhouse_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  rfp-network:
+    driver: bridge
+

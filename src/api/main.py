@@ -1,2 +1,0 @@
-"""Aplicação FastAPI principal"""
-

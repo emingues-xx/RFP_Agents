@@ -1,0 +1,94 @@
+groups:
+  - name: rfp_agents_alerts
+    interval: 30s
+    rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          component: http
+        annotations:
+          summary: "Alta taxa de erros HTTP"
+          description: "Taxa de erros HTTP acima de 10% por 5 minutos. Taxa atual: {{ $value | humanizePercentage }}"
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+          component: http
+        annotations:
+          summary: "Latência alta detectada"
+          description: "p95 de latência HTTP acima de 5 segundos por 5 minutos. Latência atual: {{ $value }}s"
+
+      - alert: HighLLMCost
+        expr: sum(rate(llm_cost_usd[1h])) > 10
+        for: 1h
+        labels:
+          severity: warning
+          component: llm
+        annotations:
+          summary: "Custo alto de LLM"
+          description: "Custo de LLM acima de $10/hora por 1 hora. Custo atual: ${{ $value }}/hora"
+
+      - alert: AgentFailure
+        expr: rate(agent_executions_total{status="error"}[5m]) / rate(agent_executions_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          component: agents
+        annotations:
+          summary: "Falha em agentes"
+          description: "Taxa de falha de agentes acima de 10% por 5 minutos. Taxa atual: {{ $value | humanizePercentage }}"
+
+      - alert: HighLLMErrorRate
+        expr: rate(llm_calls_total{status="error"}[5m]) / rate(llm_calls_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: llm
+        annotations:
+          summary: "Alta taxa de erros LLM"
+          description: "Taxa de erros LLM acima de 5% por 5 minutos. Taxa atual: {{ $value | humanizePercentage }}"
+
+      - alert: HighMemoryUsage
+        expr: (system_memory_usage_bytes / (1024 * 1024 * 1024)) > 8
+        for: 10m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "Uso alto de memória"
+          description: "Uso de memória acima de 8GB por 10 minutos. Uso atual: {{ $value }}GB"
+
+      - alert: HighCPUUsage
+        expr: system_cpu_usage_percent > 80
+        for: 10m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "Uso alto de CPU"
+          description: "Uso de CPU acima de 80% por 10 minutos. Uso atual: {{ $value }}%"
+
+      - alert: NoAgentExecutions
+        expr: rate(agent_executions_total[5m]) == 0
+        for: 15m
+        labels:
+          severity: warning
+          component: agents
+        annotations:
+          summary: "Nenhuma execução de agente"
+          description: "Nenhuma execução de agente detectada nos últimos 15 minutos"
+
+      - alert: HighHITLPendingTime
+        expr: histogram_quantile(0.95, rate(hitl_approval_duration_seconds_bucket[1h])) > 3600
+        for: 1h
+        labels:
+          severity: warning
+          component: hitl
+        annotations:
+          summary: "Tempo alto de aprovação pendente"
+          description: "p95 de tempo de aprovação pendente acima de 1 hora. Tempo atual: {{ $value }}s"
+
