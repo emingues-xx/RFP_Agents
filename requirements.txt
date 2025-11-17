@@ -3,7 +3,7 @@ langchain==0.1.0
 langchain-core==0.1.10
 langchain-community==0.0.10
 langgraph==0.0.20
-langsmith==0.0.65
+langsmith>=0.0.77,<0.1.0
 
 # API Framework
 fastapi==0.109.0
@@ -28,7 +28,7 @@ openai==1.10.0
 anthropic==0.18.1
 
 # Observability
-langfuse==2.15.0
+langfuse==2.60.10
 prometheus-client==0.19.0
 
 # Document Processing
@@ -49,7 +49,7 @@ aiohttp==3.9.1
 tenacity==8.2.3
 
 # MCP
-mcp==0.9.0
+mcp==0.9.1
 
 # Embeddings
 sentence-transformers==2.2.2
