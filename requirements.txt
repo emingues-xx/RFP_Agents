@@ -3,6 +3,7 @@ langchain==0.1.0
 langchain-core==0.1.10
 langchain-community==0.0.10
 langgraph==0.0.20
+langgraph-checkpoint-postgres>=0.0.1  # Para PostgresSaver
 langsmith>=0.0.77,<0.1.0
 langchain-postgres>=0.0.1  # Para PostgresChatMessageHistory
 
