@@ -90,9 +90,34 @@ pip install -r requirements.txt
 pip install httpcore mako distro backoff wrapt httpx-sse sse-starlette et-xmlfile python-dateutil
 ```
 
-## Próximos Passos
+## Decisão: Usar Docker
 
-1. **Para desenvolvimento local**: Usar Docker (já configurado) - RECOMENDADO
-2. **Para instalação local**: Seguir instruções acima
-3. **Alternativa**: Instalar Microsoft C++ Build Tools para compilação completa
+✅ **Decisão tomada**: Usar Docker para desenvolvimento local
+
+### Vantagens do Docker:
+- ✅ Todas as dependências funcionam sem problemas
+- ✅ Ambiente isolado e consistente
+- ✅ Não requer instalação de ferramentas de compilação
+- ✅ pymilvus funciona perfeitamente
+- ✅ Fácil de compartilhar entre desenvolvedores
+- ✅ Próximo ao ambiente de produção
+
+### Como usar:
+```bash
+# Subir todos os serviços
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f app
+
+# Executar comandos no container
+docker-compose exec app bash
+
+# Instalar dependências no container (se necessário)
+docker-compose exec app pip install -r requirements.txt
+```
+
+### Para desenvolvimento local (sem Docker):
+- Seguir instruções acima se necessário
+- Ou instalar Microsoft C++ Build Tools para compilação completa
 

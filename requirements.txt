@@ -21,14 +21,13 @@ redis==5.0.1
 hiredis>=3.3.0  # Versão pré-compilada disponível
 
 # Vector Database
-# Nota: pymilvus requer grpcio<=1.58.0, mas versões pré-compiladas só disponíveis a partir de 1.59.0
-# Para Windows: usar Docker ou instalar Microsoft C++ Build Tools
-# pymilvus==2.3.4  # Comentado - requer compilação no Windows
+pymilvus==2.3.4
 pyarrow>=12.0.0
 ujson>=2.0.0
 protobuf>=3.20.0
 minio>=7.0.0
 environs<=9.5.0
+# Nota: No Docker, todas as dependências funcionam perfeitamente
 
 # LLM Providers
 openai==1.10.0

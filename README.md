@@ -62,10 +62,14 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
-3. Instale as dependências:
+3. Instale as dependências (opcional - recomendado usar Docker):
 ```bash
+# Se desenvolver localmente (sem Docker)
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
+
+# Nota: Algumas dependências podem requerer compilação no Windows
+# Recomendado: usar Docker (veja passo 5)
 ```
 
 4. Configure variáveis de ambiente:
