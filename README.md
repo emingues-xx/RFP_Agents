@@ -305,6 +305,65 @@ docker-compose logs -f langfuse
 curl http://localhost:3020/api/public/health
 ```
 
+## 📊 Prometheus e Grafana - Observabilidade de Sistema
+
+### Acesso
+- **Prometheus**: http://localhost:9090
+- **Grafana**: http://localhost:3001 (admin/admin)
+
+### Configuração
+
+#### Prometheus
+- Coleta métricas da aplicação em `http://app:9090/metrics`
+- Configuração em `docker/prometheus/prometheus.yml`
+- Métricas disponíveis via endpoint `/metrics` da aplicação
+
+#### Grafana
+- Datasource do Prometheus configurado automaticamente
+- Dashboard básico disponível: "RFP Agents - Application Metrics"
+- Dashboards em `docker/grafana/dashboards/`
+
+### Métricas Disponíveis
+
+#### HTTP
+- `http_requests_total`: Total de requisições HTTP
+- `http_request_duration_seconds`: Duração das requisições
+
+#### Agentes
+- `agent_executions_total`: Total de execuções de agentes
+- `agent_execution_duration_seconds`: Duração de execução
+- `agents_active`: Número de agentes ativos
+
+#### LLM
+- `llm_calls_total`: Total de chamadas LLM
+- `llm_tokens_total`: Total de tokens usados
+- `llm_cost_usd`: Custo total em USD
+- `llm_request_duration_seconds`: Duração de chamadas LLM
+
+#### RAG
+- `rag_queries_total`: Total de queries RAG
+- `rag_retrieval_duration_seconds`: Duração de retrieval
+- `rag_documents_retrieved`: Documentos recuperados
+
+### Comandos Úteis
+
+```bash
+# Subir Prometheus e Grafana
+docker-compose up -d prometheus grafana
+
+# Verificar métricas da aplicação
+curl http://localhost:8000/metrics
+
+# Verificar métricas do Prometheus
+curl http://localhost:9090/metrics
+
+# Acessar Prometheus UI
+# http://localhost:9090
+
+# Acessar Grafana
+# http://localhost:3001 (admin/admin)
+```
+
 ## 👥 Contribuidores
 
 [Adicione informações dos contribuidores aqui]
