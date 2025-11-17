@@ -158,6 +158,17 @@ mcp_call_duration_seconds = Histogram(
     buckets=(0.1, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0, 60.0)
 )
 
+# Métricas de Memória
+memory_sessions_total = Gauge(
+    'memory_sessions_total',
+    'Total de sessões ativas na memória'
+)
+
+memory_messages_total = Counter(
+    'memory_messages_total',
+    'Total de mensagens salvas na memória'
+)
+
 # Métricas de sistema
 system_memory_usage_bytes = Gauge(
     'system_memory_usage_bytes',
