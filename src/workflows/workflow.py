@@ -8,6 +8,7 @@ from src.workflows.nodes import (
     parser_node, knowledge_node, verifier_node
 )
 from src.workflows.edges import route_after_orchestrator, route_after_verification
+from src.workflows.hitl_node import hitl_approval_node, check_approval_status
 from src.agents.orchestrator import OrchestratorAgent
 from src.agents.parser import ParserAgent
 from src.agents.knowledge import KnowledgeAgent
@@ -57,6 +58,7 @@ class RFPWorkflow:
         workflow.add_node("parser", lambda state: parser_node(state, parser_agent))
         workflow.add_node("knowledge", lambda state: knowledge_node(state, knowledge_agent))
         workflow.add_node("verifier", lambda state: verifier_node(state, verifier_agent))
+        workflow.add_node("approval", hitl_approval_node)
         workflow.add_node("exit", exit_node)
         
         # Adicionar edges
@@ -77,8 +79,18 @@ class RFPWorkflow:
             "verifier",
             route_after_verification,
             {
-                "approval": "exit",
+                "approval": "approval",
                 "error": "exit"
+            }
+        )
+        # Roteamento após aprovação
+        workflow.add_conditional_edges(
+            "approval",
+            check_approval_status,
+            {
+                "continue": "exit",
+                "reject": "exit",  # TODO: Adicionar node de reprocessamento
+                "wait": "approval"  # Aguardar aprovação (loop)
             }
         )
         workflow.add_edge("exit", END)
@@ -105,6 +117,7 @@ class RFPWorkflow:
             "errors": [],
             "requires_approval": False,
             "approval_status": None,
+            "approval_id": None,
             "coordination_plan": None
         }
         

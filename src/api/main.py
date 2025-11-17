@@ -31,6 +31,10 @@ app.add_middleware(MetricsMiddleware)
 # Rotas
 app.include_router(metrics_router)
 
+# Rotas de aprovação
+from src.api.routes.approvals import router as approvals_router
+app.include_router(approvals_router)
+
 # Health check
 @app.get("/health")
 async def health():

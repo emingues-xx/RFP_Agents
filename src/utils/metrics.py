@@ -169,6 +169,19 @@ memory_messages_total = Counter(
     'Total de mensagens salvas na memória'
 )
 
+# Métricas de HITL
+hitl_approvals_total = Counter(
+    'hitl_approvals_total',
+    'Total de aprovações',
+    ['status']  # pending, approved, rejected, edited
+)
+
+hitl_approval_duration_seconds = Histogram(
+    'hitl_approval_duration_seconds',
+    'Tempo de espera por aprovação em segundos',
+    buckets=(1.0, 5.0, 10.0, 30.0, 60.0, 300.0, 600.0, 3600.0)
+)
+
 # Métricas de sistema
 system_memory_usage_bytes = Gauge(
     'system_memory_usage_bytes',

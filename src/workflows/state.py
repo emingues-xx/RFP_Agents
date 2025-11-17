@@ -30,6 +30,7 @@ class WorkflowState(TypedDict, total=False):
     # Aprovação
     requires_approval: bool
     approval_status: Optional[str]  # "pending", "approved", "rejected"
+    approval_id: Optional[str]  # ID da aprovação criada
     
     # Plano de coordenação
     coordination_plan: Optional[Dict[str, Any]]
