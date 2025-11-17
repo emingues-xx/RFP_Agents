@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     minio_bucket: str = Field(default="rfp-documents", env="MINIO_BUCKET")
     
     # Langfuse
-    langfuse_url: str = Field(default="http://localhost:3000", env="LANGFUSE_URL")
+    langfuse_url: str = Field(default="http://localhost:3020", env="LANGFUSE_URL")
     langfuse_public_key: Optional[str] = Field(default=None, env="LANGFUSE_PUBLIC_KEY")
     langfuse_secret_key: Optional[str] = Field(default=None, env="LANGFUSE_SECRET_KEY")
     

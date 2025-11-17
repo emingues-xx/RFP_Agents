@@ -18,6 +18,7 @@ services:
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
       - LANGFUSE_URL=http://langfuse:3000
+      - LANGFUSE_PUBLIC_URL=http://localhost:3020
       - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY}
       - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
@@ -148,19 +149,73 @@ services:
     networks:
       - rfp-network
 
+  # ClickHouse (requerido pelo Langfuse v3+)
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: rfp-agents-clickhouse
+    ports:
+      - "8123:8123"
+      - "9002:9000"
+    environment:
+      - CLICKHOUSE_DB=langfuse
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=clickhouse_password
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    networks:
+      - rfp-network
+    restart: unless-stopped
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
   # Langfuse
   langfuse:
-    image: langfuse/langfuse:latest
+    image: langfuse/langfuse:3
     container_name: rfp-agents-langfuse
     ports:
-      - "3000:3000"
+      - "3020:3000"
     environment:
+      # Database
       - DATABASE_URL=postgresql://postgres:postgres@langfuse-db:5432/langfuse
-      - NEXTAUTH_SECRET=${LANGFUSE_SECRET_KEY}
-      - SALT=${LANGFUSE_SECRET_KEY}
-      - LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES=true
+      
+      # ClickHouse
+      - CLICKHOUSE_URL=http://clickhouse:8123
+      - CLICKHOUSE_MIGRATION_URL=clickhouse://clickhouse:9000
+      - CLICKHOUSE_DB=langfuse
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=clickhouse_password
+      - CLICKHOUSE_CLUSTER_ENABLED=false
+      
+      # Redis (reaproveitando o redis já definido no compose)
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_AUTH=${REDIS_PASSWORD:-redis_password}
+      
+      # Auth
+      - NEXTAUTH_URL=http://localhost:3020
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-some-long-random-string-change-me-in-production}
+      - SALT=${SALT:-some-long-random-string-change-me-in-production}
+      
+      # ENCRYPTION_KEY OBRIGATÓRIO (64 chars hex)
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
+      
+      # S3 / MinIO - usando o MinIO que já existe
+      - LANGFUSE_S3_EVENT_UPLOAD_BUCKET=langfuse
+      - LANGFUSE_S3_EVENT_UPLOAD_REGION=us-east-1
+      - LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID=${MINIO_ACCESS_KEY:-minioadmin}
+      - LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY=${MINIO_SECRET_KEY:-minioadmin}
+      - LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT=http://minio:9000
+      - LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE=true
+      - LANGFUSE_S3_EVENT_UPLOAD_PREFIX=events/
+      
+      - HOSTNAME=0.0.0.0
     depends_on:
       - langfuse-db
+      - clickhouse
+      - redis
+      - minio
     networks:
       - rfp-network
     restart: unless-stopped
@@ -221,6 +276,7 @@ volumes:
   etcd_data:
   minio_data:
   langfuse_db_data:
+  clickhouse_data:
   prometheus_data:
   grafana_data:
 

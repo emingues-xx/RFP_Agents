@@ -115,7 +115,7 @@ function Build-Application {
 function Show-AccessInfo {
     Write-Host "`n🌐 Acessos disponíveis:`n" -ForegroundColor Cyan
     Write-Host "  API:          http://localhost:8000" -ForegroundColor White
-    Write-Host "  Langfuse:     http://localhost:3000" -ForegroundColor White
+    Write-Host "  Langfuse:     http://localhost:3020" -ForegroundColor White
     Write-Host "  Prometheus:   http://localhost:9090" -ForegroundColor White
     Write-Host "  Grafana:      http://localhost:3001 (admin/admin)" -ForegroundColor White
     Write-Host "  MinIO:        http://localhost:9001 (minioadmin/minioadmin)`n" -ForegroundColor White

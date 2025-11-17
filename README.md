@@ -263,19 +263,19 @@ curl http://localhost:8000/health
 ## 🔍 Langfuse - Observabilidade de LLMs
 
 ### Acesso
-- URL: http://localhost:3000
+- URL: http://localhost:3020
 - Credenciais: Criar conta na primeira execução
 
 ### Configuração
 1. Subir serviços: `docker-compose up -d langfuse langfuse-db`
-2. Acessar http://localhost:3000
+2. Acessar http://localhost:3020
 3. Criar conta
 4. Obter API keys em Settings > API Keys
 5. Adicionar ao `.env`:
 ```env
 LANGFUSE_PUBLIC_KEY=pk-...
 LANGFUSE_SECRET_KEY=sk-...
-LANGFUSE_URL=http://localhost:3000
+LANGFUSE_URL=http://localhost:3020
 ```
 
 ### Uso no Código
@@ -289,7 +289,7 @@ response = llm.invoke([HumanMessage(content="Hello")])
 ```
 
 ### Visualizar Traces
-- Acessar http://localhost:3000/traces
+- Acessar http://localhost:3020/traces
 - Filtrar por session_id, modelo, etc.
 - Ver custos, latência, tokens usados
 
@@ -302,7 +302,7 @@ docker-compose up -d langfuse langfuse-db
 docker-compose logs -f langfuse
 
 # Testar conexão
-curl http://localhost:3000/api/public/health
+curl http://localhost:3020/api/public/health
 ```
 
 ## 👥 Contribuidores
