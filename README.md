@@ -81,13 +81,15 @@ docker-compose up -d
 
 6. Execute as migrações (quando disponível):
 ```bash
-alembic upgrade head
+docker-compose exec app alembic upgrade head
 ```
 
-7. Inicie a aplicação:
-```bash
-uvicorn src.api.main:app --reload
-```
+7. Acesse a aplicação:
+- API: http://localhost:8000
+- Langfuse: http://localhost:3000
+- Prometheus: http://localhost:9090
+- Grafana: http://localhost:3001 (admin/admin)
+- MinIO Console: http://localhost:9001 (minioadmin/minioadmin)
 
 ## 🌿 Branch Strategy
 
@@ -109,6 +111,49 @@ uvicorn src.api.main:app --reload
 ## 📝 Licença
 
 [Adicione a licença aqui]
+
+## 🐳 Docker Compose
+
+### Comandos Úteis
+
+```bash
+# Subir todos os serviços
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f app
+
+# Parar todos os serviços
+docker-compose down
+
+# Parar e remover volumes
+docker-compose down -v
+
+# Rebuild da aplicação
+docker-compose build app
+
+# Executar comandos no container
+docker-compose exec app bash
+
+# Ver status dos serviços
+docker-compose ps
+```
+
+### Testes de Conexão
+
+```bash
+# Testar conexão com PostgreSQL
+docker-compose exec postgres psql -U postgres -d rfp_agents -c "SELECT 1;"
+
+# Testar conexão com Redis
+docker-compose exec redis redis-cli --no-auth-warning -a redis_password ping
+
+# Testar conexão com Milvus
+docker-compose exec milvus milvus health
+
+# Testar API
+curl http://localhost:8000/health
+```
 
 ## 👥 Contribuidores
 
