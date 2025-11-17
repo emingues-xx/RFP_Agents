@@ -11,24 +11,24 @@ logger = logging.getLogger(__name__)
 class LLMWithFallback:
     """Wrapper de LLM com fallback automático."""
     
-    def __init__(self, factory: Optional[LLMFactory] = None):
+    def __init__(self, factory: Optional[LLMFactory] = None, session_id: Optional[str] = None):
         """Inicializar wrapper."""
         self.factory = factory or LLMFactory()
         self.primary_llm: Optional[BaseChatModel] = None
         self.fallback_llm: Optional[BaseChatModel] = None
-        self._initialize_llms()
+        self._initialize_llms(session_id=session_id)
     
-    def _initialize_llms(self) -> None:
+    def _initialize_llms(self, session_id: Optional[str] = None) -> None:
         """Inicializar LLMs primário e de fallback."""
         try:
-            self.primary_llm = self.factory.get_default_llm()
+            self.primary_llm = self.factory.get_default_llm(session_id=session_id)
             logger.info(f"LLM primário configurado: {self.factory.config.default_provider}")
         except Exception as e:
             logger.warning(f"Erro ao configurar LLM primário: {e}")
             self.primary_llm = None
         
         try:
-            self.fallback_llm = self.factory.get_fallback_llm()
+            self.fallback_llm = self.factory.get_fallback_llm(session_id=session_id)
             logger.info(f"LLM de fallback configurado: {self.factory.config.fallback_provider}")
         except Exception as e:
             logger.warning(f"Erro ao configurar LLM de fallback: {e}")

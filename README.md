@@ -260,6 +260,51 @@ docker-compose exec milvus milvus health
 curl http://localhost:8000/health
 ```
 
+## 🔍 Langfuse - Observabilidade de LLMs
+
+### Acesso
+- URL: http://localhost:3000
+- Credenciais: Criar conta na primeira execução
+
+### Configuração
+1. Subir serviços: `docker-compose up -d langfuse langfuse-db`
+2. Acessar http://localhost:3000
+3. Criar conta
+4. Obter API keys em Settings > API Keys
+5. Adicionar ao `.env`:
+```env
+LANGFUSE_PUBLIC_KEY=pk-...
+LANGFUSE_SECRET_KEY=sk-...
+LANGFUSE_URL=http://localhost:3000
+```
+
+### Uso no Código
+```python
+from src.utils.llm_factory import LLMFactory
+
+factory = LLMFactory()
+llm = factory.create_openai_llm(session_id="session-123")
+# Chamadas serão automaticamente rastreadas
+response = llm.invoke([HumanMessage(content="Hello")])
+```
+
+### Visualizar Traces
+- Acessar http://localhost:3000/traces
+- Filtrar por session_id, modelo, etc.
+- Ver custos, latência, tokens usados
+
+### Comandos Úteis
+```bash
+# Subir Langfuse
+docker-compose up -d langfuse langfuse-db
+
+# Ver logs
+docker-compose logs -f langfuse
+
+# Testar conexão
+curl http://localhost:3000/api/public/health
+```
+
 ## 👥 Contribuidores
 
 [Adicione informações dos contribuidores aqui]
