@@ -137,6 +137,13 @@ verifier_detections_total = Counter(
     ['type']  # prohibited_terms, gaps, inconsistencies, contractual_violations, formatting_errors
 )
 
+# Métricas de Tools
+tool_usage_total = Counter(
+    'tool_usage_total',
+    'Total de uso de tools',
+    ['tool_name', 'status']
+)
+
 # Métricas de sistema
 system_memory_usage_bytes = Gauge(
     'system_memory_usage_bytes',
