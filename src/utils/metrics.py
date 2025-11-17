@@ -105,6 +105,25 @@ parser_questions_normalized_total = Counter(
     ['category']
 )
 
+# Métricas de Knowledge
+knowledge_queries_total = Counter(
+    'knowledge_queries_total',
+    'Total de queries de conhecimento',
+    ['category', 'status']
+)
+
+knowledge_retrieval_duration_seconds = Histogram(
+    'knowledge_retrieval_duration_seconds',
+    'Duração de retrieval em segundos',
+    buckets=(0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0)
+)
+
+knowledge_response_quality = Histogram(
+    'knowledge_response_quality',
+    'Score de qualidade das respostas',
+    buckets=(0.0, 0.5, 0.7, 0.8, 0.9, 0.95, 1.0)
+)
+
 # Métricas de sistema
 system_memory_usage_bytes = Gauge(
     'system_memory_usage_bytes',
