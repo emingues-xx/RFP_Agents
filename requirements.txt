@@ -21,10 +21,14 @@ redis==5.0.1
 hiredis>=3.3.0  # Versão pré-compilada disponível
 
 # Vector Database
-grpcio>=1.49.1,<=1.58.0  # Instalar primeiro: pip install "grpcio>=1.49.1,<=1.58.0" --only-binary :all:
-pymilvus==2.3.4
+# Nota: pymilvus requer grpcio<=1.58.0, mas versões pré-compiladas só disponíveis a partir de 1.59.0
+# Para Windows: usar Docker ou instalar Microsoft C++ Build Tools
+# pymilvus==2.3.4  # Comentado - requer compilação no Windows
 pyarrow>=12.0.0
 ujson>=2.0.0
+protobuf>=3.20.0
+minio>=7.0.0
+environs<=9.5.0
 
 # LLM Providers
 openai==1.10.0
@@ -38,8 +42,10 @@ prometheus-client==0.19.0
 # Document Processing
 pypdf2==3.0.1
 pdfplumber==0.10.3
-pdfminer-six  # Requerido por pdfplumber
+pdfminer.six==20221105  # Versão específica requerida por pdfplumber
+pypdfium2>=4.18.0  # Requerido por pdfplumber
 python-docx==1.1.0
+lxml>=3.1.0  # Requerido por python-docx
 openpyxl==3.1.2
 pandas==2.1.4
 pytz  # Requerido por pandas

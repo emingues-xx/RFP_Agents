@@ -61,9 +61,11 @@ pip install pymilvus
 - ✅ `hiredis`: Instalado (versão 3.3.0 pré-compilada)
 - ✅ `sentence-transformers`: Atualizado para versão 5.1.2
 - ⚠️ `grpcio`/`pymilvus`: 
-  - `grpcio` pode ser instalado via `pip install grpcio --only-binary :all:`
-  - `pymilvus` instalado com sucesso após grpcio
-  - Nota: Pode ser necessário instalar grpcio antes de pymilvus
+  - **Problema**: `pymilvus==2.3.4` requer `grpcio<=1.58.0`, mas versões pré-compiladas só disponíveis a partir de 1.59.0
+  - **Solução**: 
+    - Usar Docker (recomendado) - todas as dependências funcionam
+    - Ou instalar Microsoft C++ Build Tools para compilar grpcio 1.58.0
+    - Ou atualizar pymilvus para versão mais recente que suporte grpcio mais novo
 
 ## Soluções Aplicadas
 
