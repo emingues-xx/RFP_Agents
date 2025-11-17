@@ -20,94 +20,144 @@ O sistema é composto por quatro agentes especializados:
 ```
 RFP_Agents/
 ├── src/
-│   ├── agents/          # Agentes especializados
-│   ├── api/             # API REST
-│   ├── tools/            # Ferramentas customizadas
-│   ├── utils/            # Utilitários
-│   └── config/           # Configurações
-├── tests/                # Testes (unit, integration, e2e)
-├── docs/                 # Documentação
-├── scripts/              # Scripts auxiliares
-└── docker/               # Configurações Docker
+│   ├── backend/              # Backend Python
+│   │   ├── src/              # Código fonte Python
+│   │   │   ├── agents/       # Agentes especializados
+│   │   │   ├── api/          # API REST (FastAPI)
+│   │   │   ├── config/       # Configurações
+│   │   │   ├── mcp/          # Integração MCP
+│   │   │   ├── rag/          # Sistema RAG
+│   │   │   ├── tools/        # Ferramentas customizadas
+│   │   │   ├── utils/        # Utilitários
+│   │   │   └── workflows/    # Workflows LangGraph
+│   │   ├── pyproject.toml    # Configuração do projeto Python
+│   │   ├── requirements.txt  # Dependências de produção
+│   │   └── requirements-dev.txt  # Dependências de desenvolvimento
+│   └── frontend/             # Frontend React/TypeScript
+│       ├── src/              # Código fonte TypeScript
+│       ├── package.json      # Dependências Node.js
+│       └── vite.config.ts    # Configuração Vite
+├── tests/                     # Testes (unit, integration, e2e)
+├── docs/                      # Documentação
+├── scripts/                   # Scripts auxiliares
+├── docker/                    # Configurações Docker
+├── docker-compose.yml        # Orquestração de serviços
+├── Dockerfile                 # Imagem Docker do backend
+└── .env                       # Variáveis de ambiente
 ```
 
 ## 📚 Documentação
 
-- [PRD - Product Requirements Document](Docs/PRD_RFP_Agentes.md)
-- [Tarefas Detalhadas](Docs/Tarefas/README_TAREFAS.md)
-- [Sprints](Docs/Sprints/)
+- [PRD - Product Requirements Document](docs/PRD_RFP_Agentes.md)
+- [Tarefas Detalhadas](docs/tasks/)
 
 ## 🚀 Início Rápido
 
 ### Pré-requisitos
 
 - Python 3.11+
+- Node.js 18+ (para frontend)
 - Docker e Docker Compose
 - Git
 
 ### Instalação
 
-1. Clone o repositório:
+1. **Clone o repositório:**
 ```bash
 git clone https://github.com/emingues-xx/RFP_Agents.git
 cd RFP_Agents
 ```
 
-2. Crie e ative o ambiente virtual:
+2. **Configure variáveis de ambiente:**
 ```bash
+# Copie o arquivo .env.example se existir, ou crie um .env
+# Edite .env com suas configurações (veja seção abaixo)
+```
+
+3. **Instale as dependências do backend (opcional - recomendado usar Docker):**
+```bash
+cd src/backend
 python -m venv venv
+
 # Windows
 venv\Scripts\activate
 # Linux/Mac
 source venv/bin/activate
-```
 
-3. Instale as dependências (opcional - recomendado usar Docker):
-```bash
-# Se desenvolver localmente (sem Docker)
+# Instalar dependências
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
-
-# Nota: Algumas dependências podem requerer compilação no Windows
-# Recomendado: usar Docker (veja passo 5)
 ```
 
-4. Configure variáveis de ambiente:
+4. **Instale as dependências do frontend (opcional):**
 ```bash
-cp .env.example .env
-# Edite .env com suas configurações
+cd src/frontend
+npm install
 ```
 
-### Configuração de LLM Providers
+### Configuração de Variáveis de Ambiente
 
-#### OpenAI
-1. Obter API key em: https://platform.openai.com/api-keys
-2. Adicionar ao `.env`:
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+
+#### LLM Providers
 ```env
 OPENAI_API_KEY=sk-...
 OPENAI_MODEL=gpt-4-turbo-preview
 OPENAI_TEMPERATURE=0.7
 OPENAI_MAX_TOKENS=2000
-```
 
-#### Anthropic
-1. Obter API key em: https://console.anthropic.com/
-2. Adicionar ao `.env`:
-```env
 ANTHROPIC_API_KEY=sk-ant-...
 ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
 ANTHROPIC_TEMPERATURE=0.7
 ANTHROPIC_MAX_TOKENS=2000
-```
 
-#### Configuração de Provider Padrão
-```env
 DEFAULT_LLM_PROVIDER=openai  # ou anthropic
 ENABLE_LLM_FALLBACK=true
 FALLBACK_LLM_PROVIDER=anthropic
 ```
 
-#### Uso no Código
+#### Langfuse
+```env
+LANGFUSE_SECRET_KEY=sk-lf-...
+LANGFUSE_PUBLIC_KEY=pk-lf-...
+LANGFUSE_BASE_URL=http://localhost:3020
+```
+
+#### Database
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=rfp_agents
+```
+
+#### Redis
+```env
+REDIS_PASSWORD=redis_password
+REDIS_URL=redis://:redis_password@redis:6379/0
+```
+
+#### Milvus
+```env
+MILVUS_HOST=milvus
+MILVUS_PORT=19530
+MILVUS_USERNAME=root
+MILVUS_PASSWORD=Milvus
+```
+
+#### MinIO
+```env
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+```
+
+#### Application
+```env
+ENVIRONMENT=development
+LOG_LEVEL=INFO
+```
+
+### Uso no Código
+
 ```python
 from src.utils.llm_factory import LLMFactory
 from src.utils.llm_with_fallback import LLMWithFallback
@@ -124,22 +174,25 @@ llm_wrapper = LLMWithFallback()
 response = llm_wrapper.invoke([HumanMessage(content="Hello")])
 ```
 
-5. Inicie os serviços com Docker Compose:
+### Executar com Docker Compose
+
+1. **Inicie todos os serviços:**
 ```bash
 docker-compose up -d
 ```
 
-6. Execute as migrações (quando disponível):
+2. **Acesse a aplicação:**
+- **API Backend**: http://localhost:8000
+- **Frontend**: http://localhost:5173 (se configurado)
+- **Langfuse**: http://localhost:3020
+- **Prometheus**: http://localhost:9090
+- **Grafana**: http://localhost:3001 (admin/admin)
+- **MinIO Console**: http://localhost:9001 (minioadmin/minioadmin)
+
+3. **Execute migrações (quando disponível):**
 ```bash
 docker-compose exec app alembic upgrade head
 ```
-
-7. Acesse a aplicação:
-- API: http://localhost:8000
-- Langfuse: http://localhost:3000
-- Prometheus: http://localhost:9090
-- Grafana: http://localhost:3001 (admin/admin)
-- MinIO Console: http://localhost:9001 (minioadmin/minioadmin)
 
 ## 🌿 Branch Strategy
 
@@ -150,13 +203,20 @@ docker-compose exec app alembic upgrade head
 
 ## 🛠️ Tecnologias
 
+### Backend
 - **Framework**: LangGraph + LangChain
-- **Linguagem**: Python
+- **Linguagem**: Python 3.11+
+- **API**: FastAPI
 - **Banco de Dados**: PostgreSQL
 - **Cache**: Redis
 - **Vector DB**: Milvus
 - **Observabilidade**: Langfuse, Prometheus, Grafana
 - **LLM Providers**: OpenAI, Anthropic (Claude)
+
+### Frontend
+- **Framework**: React + TypeScript
+- **Build Tool**: Vite
+- **HTTP Client**: Axios/Fetch
 
 ## 📦 Dependências Principais
 
@@ -185,7 +245,10 @@ docker-compose exec app alembic upgrade head
 
 ## 📥 Instalação de Dependências
 
+### Backend
 ```bash
+cd src/backend
+
 # Instalar dependências de produção
 pip install -r requirements.txt
 
@@ -196,10 +259,16 @@ pip install -r requirements-dev.txt
 pip install -r requirements.txt -r requirements-dev.txt
 ```
 
+### Frontend
+```bash
+cd src/frontend
+npm install
+```
+
 ### Comandos Úteis
 
 ```bash
-# Verificar instalação
+# Verificar instalação Python
 python -c "import langchain; print(langchain.__version__)"
 python -c "import langgraph; print(langgraph.__version__)"
 
@@ -212,10 +281,6 @@ pip list
 # Gerar requirements atualizado
 pip freeze > requirements-current.txt
 ```
-
-## 📝 Licença
-
-[Adicione a licença aqui]
 
 ## 🐳 Docker Compose
 
@@ -267,7 +332,7 @@ curl http://localhost:8000/health
 - Credenciais: Criar conta na primeira execução
 
 ### Configuração
-1. Subir serviços: `docker-compose up -d langfuse langfuse-db`
+1. Subir serviços: `docker-compose up -d langfuse langfuse-db clickhouse`
 2. Acessar http://localhost:3020
 3. Criar conta
 4. Obter API keys em Settings > API Keys
@@ -296,7 +361,7 @@ response = llm.invoke([HumanMessage(content="Hello")])
 ### Comandos Úteis
 ```bash
 # Subir Langfuse
-docker-compose up -d langfuse langfuse-db
+docker-compose up -d langfuse langfuse-db clickhouse
 
 # Ver logs
 docker-compose logs -f langfuse
@@ -364,7 +429,30 @@ curl http://localhost:9090/metrics
 # http://localhost:3001 (admin/admin)
 ```
 
+## 🧪 Testes
+
+### Executar Testes
+
+```bash
+cd src/backend
+
+# Executar todos os testes
+pytest
+
+# Executar testes com cobertura
+pytest --cov=src --cov-report=html
+
+# Executar testes específicos
+pytest tests/unit/test_orchestrator.py
+
+# Executar testes de integração
+pytest tests/integration/
+```
+
+## 📝 Licença
+
+[Adicione a licença aqui]
+
 ## 👥 Contribuidores
 
 [Adicione informações dos contribuidores aqui]
-

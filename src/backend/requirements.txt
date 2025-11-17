@@ -22,6 +22,9 @@ alembic==1.13.1
 redis==5.0.1
 hiredis>=3.3.0  # Versão pré-compilada disponível
 
+# Queue System
+rq==1.15.1  # Redis Queue para processamento assíncrono
+
 # Vector Database
 pymilvus==2.3.4
 langchain-milvus>=0.1.0  # Integração LangChain com Milvus

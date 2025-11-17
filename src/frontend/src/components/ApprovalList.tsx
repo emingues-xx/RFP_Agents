@@ -17,7 +17,7 @@ export const ApprovalList: React.FC = () => {
       setError(null);
       const data = await api.getRFPs('pending');
       // Converter para formato Approval
-      const approvalList: Approval[] = await Promise.all(
+      const approvalList = await Promise.all(
         data.map(async (rfp) => {
           try {
             const approval = await api.getApproval(rfp.id);
@@ -27,7 +27,7 @@ export const ApprovalList: React.FC = () => {
           }
         })
       );
-      setApprovals(approvalList.filter(a => a !== null) as Approval[]);
+      setApprovals(approvalList.filter((a): a is Approval => a !== null));
     } catch (err) {
       console.error('Erro ao buscar aprovações:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');

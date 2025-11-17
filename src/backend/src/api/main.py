@@ -43,6 +43,10 @@ app.include_router(workflow_router)
 from src.api.routes.rfps import router as rfps_router
 app.include_router(rfps_router)
 
+# Rotas de Queue
+from src.api.routes.queue import router as queue_router
+app.include_router(queue_router)
+
 # Health check
 @app.get("/health")
 async def health():

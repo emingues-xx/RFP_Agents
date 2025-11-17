@@ -6,7 +6,10 @@ services:
       dockerfile: Dockerfile
     container_name: rfp-agents-app
     ports:
-      - "8000:8000"
+      - "3022:8000"
+    entrypoint: >
+      sh -c "python scripts/run_migrations.py &&
+             uvicorn src.api.main:app --host 0.0.0.0 --port 8000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/rfp_agents
       - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_password}@redis:6379/0
@@ -25,8 +28,63 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - PROMETHEUS_PORT=9090
     volumes:
-      - ./src:/app/src
-      - ./alembic:/app/alembic
+      - ./src/backend/src:/app/src
+      - ./src/backend/alembic:/app/alembic
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      milvus:
+        condition: service_started
+      etcd:
+        condition: service_started
+      minio:
+        condition: service_started
+    networks:
+      - rfp-network
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    container_name: rfp-agents-frontend
+    ports:
+      - "3021:80"
+    depends_on:
+      - app
+    networks:
+      - rfp-network
+    restart: unless-stopped
+
+  # Worker RQ para processamento em background
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rfp-agents-worker
+    command: python src/workers/rq_worker.py
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/rfp_agents
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_password}@redis:6379/0
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
+      - MILVUS_HOST=milvus
+      - MILVUS_PORT=19530
+      - MILVUS_USERNAME=${MILVUS_USERNAME:-root}
+      - MILVUS_PASSWORD=${MILVUS_PASSWORD:-Milvus}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
+      - LANGFUSE_URL=http://langfuse:3000
+      - LANGFUSE_PUBLIC_URL=http://localhost:3020
+      - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY}
+      - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    volumes:
+      - ./src/backend/src:/app/src
+      - ./src/backend/alembic:/app/alembic
     depends_on:
       postgres:
         condition: service_healthy

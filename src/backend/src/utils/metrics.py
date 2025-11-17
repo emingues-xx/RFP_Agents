@@ -195,6 +195,26 @@ hitl_approval_duration_seconds = Histogram(
     buckets=(1.0, 5.0, 10.0, 30.0, 60.0, 300.0, 600.0, 3600.0)
 )
 
+# Métricas de Queue (RQ)
+queue_jobs_total = Counter(
+    'queue_jobs_total',
+    'Total de jobs na fila',
+    ['status', 'queue']  # status: queued, started, completed, failed
+)
+
+queue_job_duration_seconds = Histogram(
+    'queue_job_duration_seconds',
+    'Duração de processamento de jobs em segundos',
+    ['queue'],
+    buckets=(1.0, 5.0, 10.0, 30.0, 60.0, 120.0, 300.0, 600.0, 1800.0)
+)
+
+queue_size = Gauge(
+    'queue_size',
+    'Tamanho atual da fila',
+    ['queue']
+)
+
 # Métricas de sistema
 system_memory_usage_bytes = Gauge(
     'system_memory_usage_bytes',
