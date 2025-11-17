@@ -24,6 +24,7 @@ hiredis>=3.3.0  # Versão pré-compilada disponível
 
 # Vector Database
 pymilvus==2.3.4
+langchain-milvus>=0.1.0  # Integração LangChain com Milvus
 pyarrow>=12.0.0
 ujson>=2.0.0
 protobuf>=3.20.0

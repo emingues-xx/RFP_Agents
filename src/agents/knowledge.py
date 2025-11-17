@@ -23,11 +23,30 @@ class KnowledgeAgent:
     def __init__(
         self,
         llm: BaseChatModel,
-        vector_store: Optional[VectorStore] = None
+        vector_store: Optional[VectorStore] = None,
+        auto_create_vector_store: bool = True
     ):
-        """Inicializar Agente Conhecimento."""
+        """Inicializar Agente Conhecimento.
+        
+        Args:
+            llm: Modelo de linguagem
+            vector_store: Vector store opcional (se None e auto_create_vector_store=True, cria automaticamente)
+            auto_create_vector_store: Se True, cria VectorStoreManager automaticamente se vector_store for None
+        """
         self.llm = llm
         self.vector_store = vector_store
+        
+        # Criar vector store automaticamente se não fornecido
+        if self.vector_store is None and auto_create_vector_store:
+            try:
+                from src.rag.vector_store import VectorStoreManager
+                vector_store_manager = VectorStoreManager()
+                self.vector_store = vector_store_manager.vector_store
+                logger.info("Vector store criado automaticamente para KnowledgeAgent")
+            except Exception as e:
+                logger.warning(f"Não foi possível criar vector store automaticamente: {e}")
+                self.vector_store = None
+        
         self._setup_system_prompt()
         logger.info("KnowledgeAgent inicializado")
     
