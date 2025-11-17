@@ -78,6 +78,52 @@ cp .env.example .env
 # Edite .env com suas configurações
 ```
 
+### Configuração de LLM Providers
+
+#### OpenAI
+1. Obter API key em: https://platform.openai.com/api-keys
+2. Adicionar ao `.env`:
+```env
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4-turbo-preview
+OPENAI_TEMPERATURE=0.7
+OPENAI_MAX_TOKENS=2000
+```
+
+#### Anthropic
+1. Obter API key em: https://console.anthropic.com/
+2. Adicionar ao `.env`:
+```env
+ANTHROPIC_API_KEY=sk-ant-...
+ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
+ANTHROPIC_TEMPERATURE=0.7
+ANTHROPIC_MAX_TOKENS=2000
+```
+
+#### Configuração de Provider Padrão
+```env
+DEFAULT_LLM_PROVIDER=openai  # ou anthropic
+ENABLE_LLM_FALLBACK=true
+FALLBACK_LLM_PROVIDER=anthropic
+```
+
+#### Uso no Código
+```python
+from src.utils.llm_factory import LLMFactory
+from src.utils.llm_with_fallback import LLMWithFallback
+from langchain_core.messages import HumanMessage
+
+# Criar factory
+factory = LLMFactory()
+
+# Obter LLM padrão
+llm = factory.get_default_llm()
+
+# Ou usar com fallback automático
+llm_wrapper = LLMWithFallback()
+response = llm_wrapper.invoke([HumanMessage(content="Hello")])
+```
+
 5. Inicie os serviços com Docker Compose:
 ```bash
 docker-compose up -d

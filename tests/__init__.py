@@ -1,2 +1,1 @@
-"""Testes do sistema"""
-
+"""Testes do projeto RFP Agents."""
