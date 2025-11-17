@@ -85,6 +85,26 @@ rag_documents_retrieved = Histogram(
     buckets=(1, 5, 10, 20, 50, 100)
 )
 
+# Métricas de Parser
+parser_extractions_total = Counter(
+    'parser_extractions_total',
+    'Total de extrações de documentos',
+    ['file_type', 'status']
+)
+
+parser_extraction_duration_seconds = Histogram(
+    'parser_extraction_duration_seconds',
+    'Duração de extração em segundos',
+    ['file_type'],
+    buckets=(0.1, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0, 60.0)
+)
+
+parser_questions_normalized_total = Counter(
+    'parser_questions_normalized_total',
+    'Total de perguntas normalizadas',
+    ['category']
+)
+
 # Métricas de sistema
 system_memory_usage_bytes = Gauge(
     'system_memory_usage_bytes',
