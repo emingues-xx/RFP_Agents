@@ -18,10 +18,12 @@ alembic==1.13.1
 
 # Cache
 redis==5.0.1
-hiredis==2.2.3
+# hiredis==2.2.3  # Opcional - requer compilação (Microsoft Visual C++)
 
 # Vector Database
 pymilvus==2.3.4
+# Nota: pymilvus requer grpcio que precisa ser compilado no Windows
+# Alternativa: usar versão pré-compilada ou instalar Microsoft Visual C++ Build Tools
 
 # LLM Providers
 openai==1.10.0
