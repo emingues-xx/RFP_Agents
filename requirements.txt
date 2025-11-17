@@ -1,0 +1,33 @@
+# FastAPI e servidor
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+
+# LangChain e LangGraph
+langchain==0.3.0
+langgraph==0.2.0
+langchain-openai==0.2.0
+langchain-anthropic==0.2.0
+
+# Database
+sqlalchemy==2.0.36
+alembic==1.14.0
+psycopg2-binary==2.9.10
+
+# Redis
+redis==5.2.0
+
+# Milvus
+pymilvus==2.4.0
+
+# Observabilidade
+langfuse==2.49.0
+prometheus-client==0.21.0
+
+# Utilitários
+pydantic==2.9.2
+pydantic-settings==2.6.1
+python-dotenv==1.0.1
+
+# Documentação
+python-multipart==0.0.12
+
