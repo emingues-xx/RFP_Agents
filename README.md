@@ -19,16 +19,25 @@ O sistema é composto por quatro agentes especializados:
 
 ```
 RFP_Agents/
-├── src/
-│   ├── agents/          # Agentes especializados
-│   ├── api/             # API REST
-│   ├── tools/            # Ferramentas customizadas
-│   ├── utils/            # Utilitários
-│   └── config/           # Configurações
-├── tests/                # Testes (unit, integration, e2e)
+├── backend/              # Backend Python
+│   ├── src/              # Código fonte Python
+│   │   ├── agents/       # Agentes especializados
+│   │   ├── api/          # API REST
+│   │   ├── tools/        # Ferramentas customizadas
+│   │   ├── utils/        # Utilitários
+│   │   └── config/       # Configurações
+│   ├── tests/            # Testes (unit, integration, e2e)
+│   ├── scripts/          # Scripts auxiliares
+│   ├── requirements.txt  # Dependências Python
+│   ├── pyproject.toml    # Configuração do projeto
+│   └── Dockerfile        # Dockerfile do backend
+├── frontend/             # Frontend React/TypeScript
+│   ├── src/              # Código fonte TypeScript
+│   ├── package.json      # Dependências Node.js
+│   └── vite.config.ts   # Configuração Vite
 ├── docs/                 # Documentação
-├── scripts/              # Scripts auxiliares
-└── docker/               # Configurações Docker
+├── docker/               # Configurações Docker
+└── docker-compose.yml    # Orquestração de serviços
 ```
 
 ## 📚 Documentação

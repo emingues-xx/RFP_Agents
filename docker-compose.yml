@@ -2,7 +2,7 @@ services:
   # Aplicação Principal
   app:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     container_name: rfp-agents-app
     ports:
@@ -25,8 +25,8 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - PROMETHEUS_PORT=9090
     volumes:
-      - ./src:/app/src
-      - ./alembic:/app/alembic
+      - ./backend/src:/app/src
+      - ./backend/alembic:/app/alembic
     depends_on:
       postgres:
         condition: service_healthy
