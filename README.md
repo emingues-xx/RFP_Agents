@@ -182,15 +182,20 @@ docker-compose up -d
 ```
 
 2. **Acesse a aplicação:**
-- **API Backend**: http://localhost:8000
-- **Frontend**: http://localhost:5173 (se configurado)
+- **Frontend**: http://localhost:3021
+- **API Backend**: http://localhost:3022
+- **API Docs**: http://localhost:3022/docs
 - **Langfuse**: http://localhost:3020
 - **Prometheus**: http://localhost:9090
 - **Grafana**: http://localhost:3001 (admin/admin)
 - **MinIO Console**: http://localhost:9001 (minioadmin/minioadmin)
 
-3. **Execute migrações (quando disponível):**
+3. **Migrações:**
+As migrações Alembic são executadas automaticamente na inicialização do container `app`. 
+Para executar manualmente:
 ```bash
+docker-compose exec app python scripts/run_migrations.py
+# Ou
 docker-compose exec app alembic upgrade head
 ```
 
@@ -230,8 +235,11 @@ docker-compose exec app alembic upgrade head
 - **Anthropic**: 0.18.1 - SDK para Claude models
 
 ### Observability
-- **Langfuse**: 2.15.0 - Observabilidade para LLMs
+- **Langfuse**: 2.60.10 - Observabilidade para LLMs
 - **Prometheus Client**: 0.19.0 - Métricas para Prometheus
+
+### Queue System
+- **RQ (Redis Queue)**: 1.15.1 - Processamento assíncrono
 
 ### Database
 - **PostgreSQL (psycopg2)**: 2.9.9 - Driver para PostgreSQL
@@ -284,14 +292,31 @@ pip freeze > requirements-current.txt
 
 ## 🐳 Docker Compose
 
+### Serviços Disponíveis
+
+- **app**: API Backend FastAPI (porta 3022)
+- **frontend**: Frontend React com Nginx (porta 3021)
+- **worker**: Worker RQ para processamento em background
+- **postgres**: Banco de dados PostgreSQL
+- **redis**: Cache e filas (RQ)
+- **milvus**: Banco de dados vetorial
+- **langfuse**: Observabilidade LLM
+- **prometheus**: Coleta de métricas
+- **grafana**: Dashboards de métricas
+
 ### Comandos Úteis
 
 ```bash
 # Subir todos os serviços
 docker-compose up -d
 
+# Build e subir
+docker-compose up -d --build
+
 # Ver logs
 docker-compose logs -f app
+docker-compose logs -f frontend
+docker-compose logs -f worker
 
 # Parar todos os serviços
 docker-compose down
@@ -300,13 +325,17 @@ docker-compose down
 docker-compose down -v
 
 # Rebuild da aplicação
-docker-compose build app
+docker-compose build app frontend worker
 
 # Executar comandos no container
 docker-compose exec app bash
+docker-compose exec worker bash
 
 # Ver status dos serviços
 docker-compose ps
+
+# Verificar worker
+docker logs rfp-agents-worker
 ```
 
 ### Testes de Conexão
@@ -322,7 +351,13 @@ docker-compose exec redis redis-cli --no-auth-warning -a redis_password ping
 docker-compose exec milvus milvus health
 
 # Testar API
-curl http://localhost:8000/health
+curl http://localhost:3022/health
+
+# Testar Frontend
+curl http://localhost:3021
+
+# Verificar informações da fila
+curl http://localhost:3022/rfps/queue/info
 ```
 
 ## 🔍 Langfuse - Observabilidade de LLMs
@@ -370,6 +405,73 @@ docker-compose logs -f langfuse
 curl http://localhost:3020/api/public/health
 ```
 
+## 🔄 Queue System - Processamento Assíncrono
+
+O sistema utiliza Redis Queue (RQ) para processar RFPs em background, permitindo escalabilidade e melhor performance.
+
+### Endpoints da API
+
+```bash
+# Enfileirar RFP para processamento
+POST /rfps/queue
+{
+  "input_text": "Texto do RFP",
+  "session_id": "session-123",
+  "file_path": "opcional"
+}
+
+# Verificar status do job
+GET /rfps/queue/{job_id}/status
+
+# Obter resultado do job
+GET /rfps/queue/{job_id}/result
+
+# Informações da fila
+GET /rfps/queue/info
+```
+
+### Worker
+
+O worker RQ processa jobs automaticamente. Verificar status:
+
+```bash
+# Ver logs do worker
+docker logs rfp-agents-worker
+
+# Verificar jobs na fila
+docker-compose exec redis redis-cli --no-auth-warning -a redis_password
+> KEYS rq:*
+```
+
+### Métricas
+
+Métricas de queue disponíveis em `/metrics`:
+- `queue_jobs_total`: Total de jobs por status
+- `queue_job_duration_seconds`: Duração de processamento
+- `queue_size`: Tamanho atual da fila
+
+## 🌐 Integração com Portais via MCP
+
+O sistema suporta importação de questionários de portais externos usando MCP (Model Context Protocol).
+
+### Endpoint
+
+```bash
+# Importar questionário de portal
+POST /rfps/import-from-portal
+{
+  "portal_url": "https://portal.example.com/rfp/123",
+  "portal_type": "atlassian",  # opcional: atlassian, playwright, ou genérico
+  "auto_process": false         # se true, enfileira automaticamente
+}
+```
+
+### Tipos de Portal Suportados
+
+- **Playwright**: Via servidor MCP Playwright
+- **Atlassian**: Via servidor MCP Atlassian (Jira/Confluence)
+- **Genérico**: Extração HTTP básica (fallback)
+
 ## 📊 Prometheus e Grafana - Observabilidade de Sistema
 
 ### Acesso
@@ -410,6 +512,11 @@ curl http://localhost:3020/api/public/health
 - `rag_retrieval_duration_seconds`: Duração de retrieval
 - `rag_documents_retrieved`: Documentos recuperados
 
+#### Queue
+- `queue_jobs_total`: Total de jobs na fila por status
+- `queue_job_duration_seconds`: Duração de processamento de jobs
+- `queue_size`: Tamanho atual da fila
+
 ### Comandos Úteis
 
 ```bash
@@ -417,7 +524,7 @@ curl http://localhost:3020/api/public/health
 docker-compose up -d prometheus grafana
 
 # Verificar métricas da aplicação
-curl http://localhost:8000/metrics
+curl http://localhost:3022/metrics
 
 # Verificar métricas do Prometheus
 curl http://localhost:9090/metrics
