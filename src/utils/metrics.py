@@ -124,6 +124,19 @@ knowledge_response_quality = Histogram(
     buckets=(0.0, 0.5, 0.7, 0.8, 0.9, 0.95, 1.0)
 )
 
+# Métricas de Verifier
+verifier_validations_total = Counter(
+    'verifier_validations_total',
+    'Total de validações',
+    ['status']
+)
+
+verifier_detections_total = Counter(
+    'verifier_detections_total',
+    'Total de problemas detectados',
+    ['type']  # prohibited_terms, gaps, inconsistencies, contractual_violations, formatting_errors
+)
+
 # Métricas de sistema
 system_memory_usage_bytes = Gauge(
     'system_memory_usage_bytes',
