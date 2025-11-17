@@ -58,13 +58,39 @@ pip install pymilvus
 ## Status Atual
 
 - ✅ Correções aplicadas: `langfuse`, `mcp`, `langsmith`
-- ⚠️ `hiredis`: Comentado (opcional)
-- ❌ `grpcio`/`pymilvus`: Bloqueia instalação completa
-- ❌ `sentence-transformers`: Versão antiga não disponível
+- ✅ `hiredis`: Instalado (versão 3.3.0 pré-compilada)
+- ✅ `sentence-transformers`: Atualizado para versão 5.1.2
+- ⚠️ `grpcio`/`pymilvus`: 
+  - `grpcio` pode ser instalado via `pip install grpcio --only-binary :all:`
+  - `pymilvus` instalado com sucesso após grpcio
+  - Nota: Pode ser necessário instalar grpcio antes de pymilvus
+
+## Soluções Aplicadas
+
+### ✅ Resolvido
+1. **hiredis**: Instalada versão 3.3.0 pré-compilada
+2. **sentence-transformers**: Atualizado para 5.1.2
+3. **grpcio**: Instalado via `pip install grpcio --only-binary :all:`
+4. **pymilvus**: Instalado com sucesso após grpcio
+
+### ⚠️ Instruções de Instalação
+
+Para instalar todas as dependências no Windows:
+
+```powershell
+# 1. Instalar grpcio pré-compilado primeiro
+pip install grpcio --only-binary :all:
+
+# 2. Instalar dependências principais
+pip install -r requirements.txt
+
+# 3. Instalar dependências faltantes (se necessário)
+pip install httpcore mako distro backoff wrapt httpx-sse sse-starlette et-xmlfile python-dateutil
+```
 
 ## Próximos Passos
 
-1. **Para desenvolvimento local**: Usar Docker (já configurado)
-2. **Para instalação local**: Instalar Microsoft C++ Build Tools
-3. **Alternativa**: Atualizar versões antigas para versões mais recentes compatíveis
+1. **Para desenvolvimento local**: Usar Docker (já configurado) - RECOMENDADO
+2. **Para instalação local**: Seguir instruções acima
+3. **Alternativa**: Instalar Microsoft C++ Build Tools para compilação completa
 

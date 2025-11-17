@@ -18,12 +18,11 @@ alembic==1.13.1
 
 # Cache
 redis==5.0.1
-# hiredis==2.2.3  # Opcional - requer compilação (Microsoft Visual C++)
+hiredis>=3.3.0  # Versão pré-compilada disponível
 
 # Vector Database
+grpcio>=1.76.0  # Instalar primeiro: pip install grpcio --only-binary :all:
 pymilvus==2.3.4
-# Nota: pymilvus requer grpcio que precisa ser compilado no Windows
-# Alternativa: usar versão pré-compilada ou instalar Microsoft Visual C++ Build Tools
 
 # LLM Providers
 openai==1.10.0
@@ -54,4 +53,4 @@ tenacity==8.2.3
 mcp==0.9.1
 
 # Embeddings
-sentence-transformers==2.2.2
+sentence-transformers>=2.3.0
