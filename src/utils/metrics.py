@@ -144,6 +144,12 @@ verifier_detections_total = Counter(
     ['type']  # prohibited_terms, gaps, inconsistencies, contractual_violations, formatting_errors
 )
 
+verifier_confidence_scores = Histogram(
+    'verifier_confidence_scores',
+    'Scores de confiança das validações',
+    buckets=(0.0, 0.5, 0.7, 0.8, 0.9, 0.95, 1.0)
+)
+
 # Métricas de Tools
 tool_usage_total = Counter(
     'tool_usage_total',

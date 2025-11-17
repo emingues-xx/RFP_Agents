@@ -5,7 +5,8 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from src.workflows.schema import VerifiedResponse, GeneratedResponse
 from src.utils.metrics import (
     verifier_validations_total,
-    verifier_detections_total
+    verifier_detections_total,
+    verifier_confidence_scores
 )
 from src.utils.langfuse_wrapper import observe
 import logging
@@ -315,6 +316,9 @@ As respostas se contradizem? Responda APENAS com "SIM" ou "NÃO"."""
         
         final_score = max(0.0, min(100.0, score))
         logger.debug(f"Score final calculado: {final_score:.2f}%")
+        
+        # Registrar métrica de confidence score (normalizado para 0-1)
+        verifier_confidence_scores.observe(final_score / 100.0)
         
         return final_score
     
