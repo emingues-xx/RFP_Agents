@@ -4,6 +4,7 @@ langchain-core==0.1.10
 langchain-community==0.0.10
 langgraph==0.0.20
 langsmith>=0.0.77,<0.1.0
+langchain-postgres>=0.0.1  # Para PostgresChatMessageHistory
 
 # API Framework
 fastapi==0.109.0
