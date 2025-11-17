@@ -21,8 +21,10 @@ redis==5.0.1
 hiredis>=3.3.0  # Versão pré-compilada disponível
 
 # Vector Database
-grpcio>=1.76.0  # Instalar primeiro: pip install grpcio --only-binary :all:
+grpcio>=1.49.1,<=1.58.0  # Instalar primeiro: pip install "grpcio>=1.49.1,<=1.58.0" --only-binary :all:
 pymilvus==2.3.4
+pyarrow>=12.0.0
+ujson>=2.0.0
 
 # LLM Providers
 openai==1.10.0
@@ -30,14 +32,18 @@ anthropic==0.18.1
 
 # Observability
 langfuse==2.60.10
+wrapt>=1.14,<2.0  # Requerido por langfuse
 prometheus-client==0.19.0
 
 # Document Processing
 pypdf2==3.0.1
 pdfplumber==0.10.3
+pdfminer-six  # Requerido por pdfplumber
 python-docx==1.1.0
 openpyxl==3.1.2
 pandas==2.1.4
+pytz  # Requerido por pandas
+tzdata  # Requerido por pandas
 
 # OCR
 pytesseract==0.3.10
