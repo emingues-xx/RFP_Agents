@@ -35,6 +35,14 @@ app.include_router(metrics_router)
 from src.api.routes.approvals import router as approvals_router
 app.include_router(approvals_router)
 
+# Rotas de workflow
+from src.api.routes.workflow import router as workflow_router
+app.include_router(workflow_router)
+
+# Rotas de RFPs
+from src.api.routes.rfps import router as rfps_router
+app.include_router(rfps_router)
+
 # Health check
 @app.get("/health")
 async def health():
