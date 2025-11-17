@@ -1,33 +1,55 @@
-# FastAPI e servidor
-fastapi==0.115.0
-uvicorn[standard]==0.32.0
+# Core Frameworks
+langchain==0.1.0
+langchain-core==0.1.10
+langchain-community==0.0.10
+langgraph==0.0.20
+langsmith==0.0.65
 
-# LangChain e LangGraph
-langchain==0.3.0
-langgraph==0.2.0
-langchain-openai==0.2.0
-langchain-anthropic==0.2.0
+# API Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
 
 # Database
-sqlalchemy==2.0.36
-alembic==1.14.0
-psycopg2-binary==2.9.10
+psycopg2-binary==2.9.9
+sqlalchemy==2.0.25
+alembic==1.13.1
 
-# Redis
-redis==5.2.0
+# Cache
+redis==5.0.1
+hiredis==2.2.3
 
-# Milvus
-pymilvus==2.4.0
+# Vector Database
+pymilvus==2.3.4
 
-# Observabilidade
-langfuse==2.49.0
-prometheus-client==0.21.0
+# LLM Providers
+openai==1.10.0
+anthropic==0.18.1
 
-# Utilitários
-pydantic==2.9.2
-pydantic-settings==2.6.1
-python-dotenv==1.0.1
+# Observability
+langfuse==2.15.0
+prometheus-client==0.19.0
 
-# Documentação
-python-multipart==0.0.12
+# Document Processing
+pypdf2==3.0.1
+pdfplumber==0.10.3
+python-docx==1.1.0
+openpyxl==3.1.2
+pandas==2.1.4
 
+# OCR
+pytesseract==0.3.10
+Pillow==10.2.0
+
+# Utilities
+python-dotenv==1.0.0
+httpx==0.26.0
+aiohttp==3.9.1
+tenacity==8.2.3
+
+# MCP
+mcp==0.9.0
+
+# Embeddings
+sentence-transformers==2.2.2

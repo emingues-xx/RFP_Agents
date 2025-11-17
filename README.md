@@ -108,6 +108,61 @@ docker-compose exec app alembic upgrade head
 - **Observabilidade**: Langfuse, Prometheus, Grafana
 - **LLM Providers**: OpenAI, Anthropic (Claude)
 
+## 📦 Dependências Principais
+
+### Core
+- **LangChain**: 0.1.0 - Framework para construção de aplicações LLM
+- **LangGraph**: 0.0.20 - Extensão para workflows em grafo
+- **FastAPI**: 0.109.0 - Framework web moderno e rápido
+
+### LLM Providers
+- **OpenAI**: 1.10.0 - SDK para GPT models
+- **Anthropic**: 0.18.1 - SDK para Claude models
+
+### Observability
+- **Langfuse**: 2.15.0 - Observabilidade para LLMs
+- **Prometheus Client**: 0.19.0 - Métricas para Prometheus
+
+### Database
+- **PostgreSQL (psycopg2)**: 2.9.9 - Driver para PostgreSQL
+- **SQLAlchemy**: 2.0.25 - ORM
+- **Milvus (pymilvus)**: 2.3.4 - Vector database
+
+### Document Processing
+- **PyPDF2**: 3.0.1 - Processamento de PDFs
+- **python-docx**: 1.1.0 - Processamento de DOCX
+- **pytesseract**: 0.3.10 - OCR
+
+## 📥 Instalação de Dependências
+
+```bash
+# Instalar dependências de produção
+pip install -r requirements.txt
+
+# Instalar dependências de desenvolvimento
+pip install -r requirements-dev.txt
+
+# Ou instalar tudo de uma vez
+pip install -r requirements.txt -r requirements-dev.txt
+```
+
+### Comandos Úteis
+
+```bash
+# Verificar instalação
+python -c "import langchain; print(langchain.__version__)"
+python -c "import langgraph; print(langgraph.__version__)"
+
+# Verificar dependências conflitantes
+pip check
+
+# Listar dependências instaladas
+pip list
+
+# Gerar requirements atualizado
+pip freeze > requirements-current.txt
+```
+
 ## 📝 Licença
 
 [Adicione a licença aqui]
