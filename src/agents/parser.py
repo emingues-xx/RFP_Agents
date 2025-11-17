@@ -209,6 +209,7 @@ Sempre responda em formato JSON estruturado."""
             logger.error(f"Erro ao extrair CSV: {e}")
             raise
     
+    @observe(name="parser_normalize_questions")
     def normalize_questions(self, raw_text: str) -> List[ParsedQuestion]:
         """Normalizar perguntas em formato canônico."""
         logger.info("Iniciando normalização de perguntas")

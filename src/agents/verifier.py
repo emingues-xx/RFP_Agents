@@ -7,6 +7,7 @@ from src.utils.metrics import (
     verifier_validations_total,
     verifier_detections_total
 )
+from src.utils.langfuse_wrapper import observe
 import logging
 import re
 import json
@@ -317,6 +318,7 @@ As respostas se contradizem? Responda APENAS com "SIM" ou "NÃO"."""
         
         return final_score
     
+    @observe(name="verifier_verify")
     def verify(
         self,
         question: str,

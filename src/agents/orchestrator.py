@@ -4,6 +4,7 @@ from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from langchain_core.language_models import BaseChatModel
 from pydantic import BaseModel, Field
 from datetime import datetime
+from src.utils.langfuse_wrapper import observe
 import json
 import logging
 
@@ -50,6 +51,7 @@ class OrchestratorAgent:
 
 Sempre responda em formato JSON estruturado."""
     
+    @observe(name="orchestrator_identify_input_type")
     def identify_input_type(self, input_text: str) -> InputType:
         """Identificar tipo de input (pergunta única vs. questionário)."""
         logger.info("Iniciando identificação de tipo de input")

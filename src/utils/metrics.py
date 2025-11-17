@@ -124,6 +124,13 @@ knowledge_response_quality = Histogram(
     buckets=(0.0, 0.5, 0.7, 0.8, 0.9, 0.95, 1.0)
 )
 
+# Métrica adicional de qualidade de retrieval (similarity score)
+knowledge_retrieval_quality = Histogram(
+    'knowledge_retrieval_quality',
+    'Qualidade de retrieval (similarity score)',
+    buckets=(0.0, 0.5, 0.7, 0.8, 0.9, 0.95, 1.0)
+)
+
 # Métricas de Verifier
 verifier_validations_total = Counter(
     'verifier_validations_total',

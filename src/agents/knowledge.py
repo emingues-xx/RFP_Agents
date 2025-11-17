@@ -10,6 +10,7 @@ from src.utils.metrics import (
     knowledge_retrieval_duration_seconds,
     knowledge_response_quality
 )
+from src.utils.langfuse_wrapper import observe
 import json
 import time
 import logging
@@ -61,6 +62,7 @@ Sua função é:
 
 Sempre responda em formato JSON estruturado."""
     
+    @observe(name="knowledge_retrieve_documents")
     def retrieve_documents(
         self,
         query: str,
@@ -104,6 +106,7 @@ Sempre responda em formato JSON estruturado."""
             ).inc()
             return []
     
+    @observe(name="knowledge_generate_response")
     def generate_response(
         self,
         question: str,
