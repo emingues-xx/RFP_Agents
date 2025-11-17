@@ -1,112 +1,19 @@
-# Guia de Testes - RFP Agents
+# Guia de Testes Funcionais - RFP Agents
 
 Este documento fornece um roteiro completo para testar todas as funcionalidades do sistema RFP Agents.
 
-## 📋 Pré-requisitos
-
-Antes de começar, certifique-se de que:
-
-- [ ] Docker e Docker Compose estão instalados e rodando
-- [ ] Todos os serviços estão up: `docker-compose ps`
-- [ ] Arquivo `.env` está configurado com as chaves necessárias
-- [ ] Portas 3021 (frontend) e 3022 (API) estão disponíveis
-
-## 🚀 Início Rápido
-
-### 1. Subir os Serviços
-
-```bash
-# Subir todos os serviços
-docker-compose up -d
-
-# Aguardar inicialização (30-60 segundos)
-sleep 30
-
-# Verificar status
-docker-compose ps
-```
-
-### 2. Verificar Saúde dos Serviços
-
-```bash
-# API
-curl http://localhost:3022/health
-# Esperado: {"status":"healthy"}
-
-# Frontend
-curl http://localhost:3021
-# Esperado: HTML da aplicação
-
-# PostgreSQL
-docker-compose exec postgres psql -U postgres -d rfp_agents -c "SELECT 1;"
-# Esperado: 1
-
-# Redis
-docker-compose exec redis redis-cli --no-auth-warning -a redis_password ping
-# Esperado: PONG
-
-# Worker
-docker logs rfp-agents-worker | tail -20
-# Esperado: "Worker iniciado. Escutando fila: rfp-queue"
-```
+**Assumindo que os serviços já estão rodando:**
+- Frontend: http://localhost:3021
+- API: http://localhost:3022
+- Worker RQ: rodando e processando jobs
 
 ---
 
-## 🧪 Roteiro de Testes
+## 🧪 Roteiro de Testes Funcionais
 
-### Fase 1: Testes de Infraestrutura
+### Fase 1: Testes Básicos da API
 
-#### 1.1 Verificar Migrações do Banco
-
-```bash
-# Verificar se migrações rodaram
-docker-compose logs app | grep -i migration
-
-# Verificar versão atual do Alembic
-docker-compose exec app alembic current
-
-# Ver histórico de migrações
-docker-compose exec app alembic history
-```
-
-**✅ Critério de Sucesso:** Migrações executadas sem erros
-
----
-
-#### 1.2 Verificar Métricas Prometheus
-
-```bash
-# Verificar endpoint de métricas
-curl http://localhost:3022/metrics | head -20
-
-# Verificar métricas específicas
-curl http://localhost:3022/metrics | grep "http_requests_total"
-curl http://localhost:3022/metrics | grep "queue_jobs_total"
-```
-
-**✅ Critério de Sucesso:** Métricas sendo expostas corretamente
-
----
-
-#### 1.3 Verificar Worker RQ
-
-```bash
-# Ver logs do worker
-docker logs rfp-agents-worker
-
-# Verificar conexão com Redis
-docker-compose exec redis redis-cli --no-auth-warning -a redis_password
-> KEYS rq:*
-> EXIT
-```
-
-**✅ Critério de Sucesso:** Worker conectado e escutando a fila
-
----
-
-### Fase 2: Testes da API
-
-#### 2.1 Health Check
+#### 1.1 Health Check
 
 ```bash
 curl http://localhost:3022/health
@@ -119,7 +26,7 @@ curl http://localhost:3022/health
 
 ---
 
-#### 2.2 Documentação da API
+#### 1.2 Documentação da API
 
 ```bash
 # Abrir no navegador
@@ -130,7 +37,7 @@ curl http://localhost:3022/health
 
 ---
 
-#### 2.3 Listar RFPs
+#### 1.3 Listar RFPs
 
 ```bash
 curl http://localhost:3022/rfps
@@ -140,7 +47,7 @@ curl http://localhost:3022/rfps
 
 ---
 
-#### 2.4 Informações da Fila
+#### 1.4 Informações da Fila
 
 ```bash
 curl http://localhost:3022/rfps/queue/info
@@ -161,9 +68,9 @@ curl http://localhost:3022/rfps/queue/info
 
 ---
 
-### Fase 3: Testes do Queue System
+### Fase 2: Testes do Queue System
 
-#### 3.1 Enfileirar RFP
+#### 2.1 Enfileirar RFP
 
 ```bash
 curl -X POST http://localhost:3022/rfps/queue \
@@ -188,7 +95,7 @@ curl -X POST http://localhost:3022/rfps/queue \
 
 ---
 
-#### 3.2 Verificar Status do Job
+#### 2.2 Verificar Status do Job
 
 ```bash
 # Substituir {job_id} pelo ID retornado anteriormente
@@ -212,7 +119,7 @@ curl http://localhost:3022/rfps/queue/{job_id}/status
 
 ---
 
-#### 3.3 Obter Resultado do Job
+#### 2.3 Obter Resultado do Job
 
 ```bash
 # Após job estar "finished"
@@ -232,7 +139,7 @@ curl http://localhost:3022/rfps/queue/{job_id}/result
 
 ---
 
-#### 3.4 Verificar Logs do Worker
+#### 2.4 Verificar Logs do Worker
 
 ```bash
 docker logs rfp-agents-worker | tail -30
@@ -242,7 +149,7 @@ docker logs rfp-agents-worker | tail -30
 
 ---
 
-#### 3.5 Verificar Métricas da Fila
+#### 2.5 Verificar Métricas da Fila
 
 ```bash
 curl http://localhost:3022/metrics | grep "queue_"
@@ -252,9 +159,9 @@ curl http://localhost:3022/metrics | grep "queue_"
 
 ---
 
-### Fase 4: Testes de Integração MCP
+### Fase 3: Testes de Integração MCP
 
-#### 4.1 Importar de Portal Genérico
+#### 3.1 Importar de Portal Genérico
 
 ```bash
 curl -X POST http://localhost:3022/rfps/import-from-portal \
@@ -283,7 +190,7 @@ curl -X POST http://localhost:3022/rfps/import-from-portal \
 
 ---
 
-#### 4.2 Importar e Processar Automaticamente
+#### 3.2 Importar e Processar Automaticamente
 
 ```bash
 curl -X POST http://localhost:3022/rfps/import-from-portal \
@@ -298,9 +205,9 @@ curl -X POST http://localhost:3022/rfps/import-from-portal \
 
 ---
 
-### Fase 5: Testes do Workflow Completo
+### Fase 4: Testes do Workflow Completo
 
-#### 5.1 Processar Texto Direto
+#### 4.1 Processar Texto Direto
 
 ```bash
 curl -X POST http://localhost:3022/workflow/process \
@@ -314,7 +221,7 @@ curl -X POST http://localhost:3022/workflow/process \
 
 ---
 
-#### 5.2 Processar Arquivo
+#### 4.2 Processar Arquivo
 
 ```bash
 # Criar arquivo de teste
@@ -329,9 +236,9 @@ curl -X POST http://localhost:3022/workflow/process-file \
 
 ---
 
-### Fase 6: Testes do Frontend
+### Fase 5: Testes do Frontend
 
-#### 6.1 Acessar Frontend
+#### 5.1 Acessar Frontend
 
 ```bash
 # Abrir no navegador
@@ -342,7 +249,7 @@ curl -X POST http://localhost:3022/workflow/process-file \
 
 ---
 
-#### 6.2 Testar Navegação
+#### 5.2 Testar Navegação
 
 - [ ] Acessar página de RFPs
 - [ ] Acessar página de Aprovações
@@ -352,7 +259,7 @@ curl -X POST http://localhost:3022/workflow/process-file \
 
 ---
 
-#### 6.3 Testar Processamento via Frontend
+#### 5.3 Testar Processamento via Frontend
 
 1. Acessar http://localhost:3021
 2. Inserir texto de RFP
@@ -363,9 +270,9 @@ curl -X POST http://localhost:3022/workflow/process-file \
 
 ---
 
-### Fase 7: Testes de Aprovação (HITL)
+### Fase 6: Testes de Aprovação (HITL)
 
-#### 7.1 Listar Aprovações Pendentes
+#### 6.1 Listar Aprovações Pendentes
 
 ```bash
 curl http://localhost:3022/approvals?status=pending
@@ -375,7 +282,7 @@ curl http://localhost:3022/approvals?status=pending
 
 ---
 
-#### 7.2 Obter Detalhes de Aprovação
+#### 6.2 Obter Detalhes de Aprovação
 
 ```bash
 # Substituir {approval_id} pelo ID real
@@ -386,7 +293,7 @@ curl http://localhost:3022/approvals/{approval_id}
 
 ---
 
-#### 7.3 Aprovar Respostas
+#### 6.3 Aprovar Respostas
 
 ```bash
 curl -X POST http://localhost:3022/approvals/{approval_id}/approve \
@@ -401,7 +308,7 @@ curl -X POST http://localhost:3022/approvals/{approval_id}/approve \
 
 ---
 
-#### 7.4 Rejeitar Respostas
+#### 6.4 Rejeitar Respostas
 
 ```bash
 curl -X POST http://localhost:3022/approvals/{approval_id}/reject \
@@ -415,9 +322,9 @@ curl -X POST http://localhost:3022/approvals/{approval_id}/reject \
 
 ---
 
-### Fase 8: Testes de Observabilidade
+### Fase 7: Testes de Observabilidade
 
-#### 8.1 Verificar Langfuse
+#### 7.1 Verificar Langfuse
 
 ```bash
 # Abrir no navegador
@@ -431,7 +338,7 @@ curl -X POST http://localhost:3022/approvals/{approval_id}/reject \
 
 ---
 
-#### 8.2 Verificar Prometheus
+#### 7.2 Verificar Prometheus
 
 ```bash
 # Abrir no navegador
@@ -445,7 +352,7 @@ curl -X POST http://localhost:3022/approvals/{approval_id}/reject \
 
 ---
 
-#### 8.3 Verificar Grafana
+#### 7.3 Verificar Grafana
 
 ```bash
 # Abrir no navegador
@@ -484,64 +391,6 @@ curl http://localhost:3022/rfps/queue/info
 
 ---
 
-## 🐛 Troubleshooting
-
-### Problemas Comuns
-
-#### Worker não processa jobs
-
-```bash
-# Verificar se worker está rodando
-docker ps | grep worker
-
-# Verificar logs
-docker logs rfp-agents-worker
-
-# Reiniciar worker
-docker-compose restart worker
-```
-
-#### API não responde
-
-```bash
-# Verificar logs
-docker-compose logs app | tail -50
-
-# Verificar se migrações rodaram
-docker-compose logs app | grep -i migration
-
-# Reiniciar app
-docker-compose restart app
-```
-
-#### Frontend não carrega
-
-```bash
-# Verificar se frontend está rodando
-docker ps | grep frontend
-
-# Verificar logs
-docker-compose logs frontend
-
-# Rebuild frontend
-docker-compose build frontend
-docker-compose up -d frontend
-```
-
-#### Erro de conexão com banco
-
-```bash
-# Verificar se PostgreSQL está saudável
-docker-compose ps postgres
-
-# Verificar conexão
-docker-compose exec postgres psql -U postgres -d rfp_agents -c "SELECT 1;"
-
-# Verificar variável DATABASE_URL
-docker-compose exec app env | grep DATABASE_URL
-```
-
----
 
 ## ✅ Checklist Final
 
