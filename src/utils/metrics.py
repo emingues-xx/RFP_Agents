@@ -144,6 +144,20 @@ tool_usage_total = Counter(
     ['tool_name', 'status']
 )
 
+# Métricas de MCP
+mcp_calls_total = Counter(
+    'mcp_calls_total',
+    'Total de chamadas MCP',
+    ['tool_name', 'status']
+)
+
+mcp_call_duration_seconds = Histogram(
+    'mcp_call_duration_seconds',
+    'Duração de chamadas MCP em segundos',
+    ['tool_name'],
+    buckets=(0.1, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0, 60.0)
+)
+
 # Métricas de sistema
 system_memory_usage_bytes = Gauge(
     'system_memory_usage_bytes',
