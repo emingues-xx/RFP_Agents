@@ -26,9 +26,19 @@ def route_after_verification(state: WorkflowState) -> Literal["approval", "error
     """Roteamento após verificação."""
     errors = state.get("errors", [])
     if errors:
+        logger.error(f"Erros encontrados após verificação: {len(errors)}")
         return "error"
+    
+    # Verificar se há respostas verificadas que precisam de revisão
+    verified_responses = state.get("verified_responses", [])
+    needs_review = any(
+        resp.get("needs_review", False) for resp in verified_responses
+    )
     
     # Sempre requer aprovação
     state["requires_approval"] = True
+    if needs_review:
+        logger.info("Respostas verificadas requerem revisão humana")
+    
     return "approval"
 
