@@ -462,7 +462,3 @@ result = workflow.run(
 - [ ] Documentação criada
 
 ---
-
-## Próximos Passos
-Após completar esta tarefa, seguir para: **Tarefa 2.3: Implementação de Branching Básico**
-

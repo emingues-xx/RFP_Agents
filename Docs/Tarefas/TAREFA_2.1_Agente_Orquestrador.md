@@ -511,7 +511,3 @@ plan = orchestrator.coordinate_agents(input_type, context, "input data")
 - [ ] Documentação criada
 
 ---
-
-## Próximos Passos
-Após completar esta tarefa, seguir para: **Tarefa 2.2: Criação do Workflow Base com LangGraph**
-

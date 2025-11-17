@@ -15,6 +15,22 @@ O sistema é composto por quatro agentes especializados:
 3. **Conhecimento & Redação**: Busca informações e redige respostas
 4. **Verificador**: Valida a qualidade e completude das respostas
 
+## 📁 Estrutura do Projeto
+
+```
+RFP_Agents/
+├── src/
+│   ├── agents/          # Agentes especializados
+│   ├── api/             # API REST
+│   ├── tools/            # Ferramentas customizadas
+│   ├── utils/            # Utilitários
+│   └── config/           # Configurações
+├── tests/                # Testes (unit, integration, e2e)
+├── docs/                 # Documentação
+├── scripts/              # Scripts auxiliares
+└── docker/               # Configurações Docker
+```
+
 ## 📚 Documentação
 
 - [PRD - Product Requirements Document](Docs/PRD_RFP_Agentes.md)
@@ -25,11 +41,11 @@ O sistema é composto por quatro agentes especializados:
 
 ### Pré-requisitos
 
-- Docker e Docker Compose
 - Python 3.11+
+- Docker e Docker Compose
 - Git
 
-### Configuração
+### Instalação
 
 1. Clone o repositório:
 ```bash
@@ -37,16 +53,48 @@ git clone https://github.com/emingues-xx/RFP_Agents.git
 cd RFP_Agents
 ```
 
-2. Configure as variáveis de ambiente:
+2. Crie e ative o ambiente virtual:
 ```bash
-cp .env.example .env
-# Edite o .env com suas credenciais
+python -m venv venv
+# Windows
+venv\Scripts\activate
+# Linux/Mac
+source venv/bin/activate
 ```
 
-3. Inicie os serviços com Docker Compose:
+3. Instale as dependências:
+```bash
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+```
+
+4. Configure variáveis de ambiente:
+```bash
+cp .env.example .env
+# Edite .env com suas configurações
+```
+
+5. Inicie os serviços com Docker Compose:
 ```bash
 docker-compose up -d
 ```
+
+6. Execute as migrações (quando disponível):
+```bash
+alembic upgrade head
+```
+
+7. Inicie a aplicação:
+```bash
+uvicorn src.api.main:app --reload
+```
+
+## 🌿 Branch Strategy
+
+- `main`: Produção/estável
+- `develop`: Desenvolvimento
+- `feature/*`: Features individuais
+- `hotfix/*`: Correções urgentes
 
 ## 🛠️ Tecnologias
 

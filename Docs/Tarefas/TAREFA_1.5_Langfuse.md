@@ -330,7 +330,3 @@ pytest tests/test_langfuse.py -v
 ```
 
 ---
-
-## Próximos Passos
-Após completar esta tarefa, seguir para: **Tarefa 1.6: Setup do Prometheus e Grafana**
-

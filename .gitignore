@@ -99,8 +99,8 @@ Thumbs.db
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# pyenv
-.python-version
+# pyenv (keep .python-version for version tracking)
+# .python-version
 
 # Secrets
 secrets/

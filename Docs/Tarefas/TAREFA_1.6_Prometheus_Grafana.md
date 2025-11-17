@@ -450,7 +450,3 @@ curl http://localhost:8000/metrics
 ```
 
 ---
-
-## Próximos Passos
-Após completar esta tarefa, seguir para: **Tarefa 1.7: Setup de Banco de Dados e Vector Store**
-

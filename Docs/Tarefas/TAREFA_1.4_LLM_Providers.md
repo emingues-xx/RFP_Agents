@@ -382,6 +382,3 @@ pytest tests/test_llm_providers.py -v
 
 ---
 
-## Próximos Passos
-Após completar esta tarefa, seguir para: **Tarefa 1.5: Setup do Langfuse**
-

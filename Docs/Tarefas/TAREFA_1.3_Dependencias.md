@@ -331,7 +331,3 @@ sudo apt-get install tesseract-ocr tesseract-ocr-por
 ```
 
 ---
-
-## Próximos Passos
-Após completar esta tarefa, seguir para: **Tarefa 1.4: Configuração de LLM Providers**
-
